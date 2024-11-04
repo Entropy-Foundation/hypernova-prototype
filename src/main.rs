@@ -1,5 +1,5 @@
 use alloy::{
-    primitives::{address, Address},
+    primitives::Address,
     providers::{Provider, ProviderBuilder, WsConnect},
     rpc::types::{BlockNumberOrTag, Filter, ValueOrArray, Log},
 };
@@ -10,8 +10,8 @@ use hex_literal::hex;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let rpc_url_chain1 = "wss://sepolia.infura.io/ws/v3/8dd4a35393c04ed8a4c1c563c8ea099e"; // Replace with your actual URL
-    let rpc_url_chain2 = "wss://polygon-amoy.infura.io/ws/v3/8dd4a35393c04ed8a4c1c563c8ea099e"; // Replace with your actual URL
+    let rpc_url_chain1 = "wss://sepolia.infura.io/ws/v3/8dd4a35393c04ed8a4c1c563c8ea099e"; 
+    let rpc_url_chain2 = "wss://polygon-amoy.infura.io/ws/v3/8dd4a35393c04ed8a4c1c563c8ea099e"; 
 
     let ws_chain1 = WsConnect::new(rpc_url_chain1);
     let ws_chain2 = WsConnect::new(rpc_url_chain2);
@@ -21,18 +21,13 @@ async fn main() -> Result<()> {
 
     let contract_address: Address = Address::from(hex!("8c6faf12a32462f5f2f5282821fe9e789e6d82e7"));
 
-    let filter_chain1 = Filter::new()
+    let filter_chain = Filter::new()
         .address(ValueOrArray::Value(contract_address))
         .event("Generate(uint256,uint256)")
         .from_block(BlockNumberOrTag::Latest);
 
-    let filter_chain2 = Filter::new()
-        .address(ValueOrArray::Value(contract_address))
-        .event("Generate(uint256,uint256)")
-        .from_block(BlockNumberOrTag::Latest);
-
-    let sub_chain1 = provider_chain1.subscribe_logs(&filter_chain1).await?;
-    let sub_chain2 = provider_chain2.subscribe_logs(&filter_chain2).await?;
+    let sub_chain1 = provider_chain1.subscribe_logs(&filter_chain).await?;
+    let sub_chain2 = provider_chain2.subscribe_logs(&filter_chain).await?;
 
     let mut stream_chain1 = sub_chain1.into_stream();
     let mut stream_chain2 = sub_chain2.into_stream();
